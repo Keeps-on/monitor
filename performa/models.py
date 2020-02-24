@@ -11,7 +11,7 @@ class Cpu(models.Model):
     iowait = models.IntegerField(verbose_name="等待磁盘IO响应使用率")
 
     def __str__(self):
-        return "<{}-{}>".format(self.id, self.time,self.util,self.iowait)
+        return "<{}-{}>".format(self.id, self.execution, self.util, self.iowait)
 
     class Meta:
         db_table = "cpu"
