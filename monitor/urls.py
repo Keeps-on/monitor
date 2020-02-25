@@ -18,7 +18,10 @@ from django.urls import path
 
 from monitor import views
 
+from performa import api as api_performa
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('api/v1.0/cpu', api_performa.get_cpu_data, name='cpu_data'),
 ]

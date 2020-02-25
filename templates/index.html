@@ -1,14 +1,88 @@
 {% extends 'base.html' %}
 
 
-
-
-
 {% block title %}
 监控概览
 {% endblock %}
 
 
 {% block content %}
+
+
+<div id="container" style="min-width:400px;height:400px"></div>
+
+<script>
+    //使用layui框架中自带的jquery
+    layui.use(['jquery', 'layer'], function () {
+        var $ = layui.$ //重点处
+            , layer = layui.layer;
+
+        // 初始化表格,在初始化表格后会自动执行回调函数
+        // 参考文档:https://www.highcharts.com.cn/docs/ajax
+        var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'line',
+                events: {
+                    load: get_chart_data // 图表加载完毕后执行的回调函数
+                }
+            },
+            title: {
+                text: 'CPU'
+            },
+            subtitle: {
+                text: '最新数据(30秒刷新一次)'
+            },
+            xAxis: {
+                categories: []
+            },
+            yAxis: {
+                title: {
+                    text: '内存大小 (GB)'
+                }
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        // 开启数据标签
+                        enabled: true
+                    },
+                    // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: 'cpu利用率',
+                data: []
+            }, {
+                name: '磁盘io响应',
+                data: []
+            }]
+        });
+
+        /**
+         * 获取加载图表的数据
+         * https://blog.csdn.net/xiaocxyczh/article/details/87906840
+         * https://zhidao.baidu.com/question/361180835282440212.html
+         */
+        function get_chart_data() {
+            $.get('api/v1.0/cpu', function (data) {
+                var execution, util, iowait
+                execution = data.execution
+                util = data.util
+                iowait = data.iowait
+                // 动态设置横坐标的时间
+                chart.xAxis[0].setCategories(execution)
+                chart.series[0].setData(util)
+                chart.series[1].setData(iowait)
+                // 设置每三十秒加载一次
+                setTimeout(get_chart_data, 3000);
+            });
+        };
+
+    });
+
+
+</script>
+
 
 {% endblock %}
